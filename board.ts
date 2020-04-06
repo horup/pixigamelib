@@ -15,8 +15,8 @@ export interface BoardTile
     /** The index which contains the texture to use */
     frame:number;
 
-    /** The index which contains the texture to use */
-    textureIndex:number;
+    /** The index which contains the atlas to use */
+    atlas:number;
 
     /** Render order as to control overlapping */
     order:number;
@@ -40,28 +40,55 @@ export interface BoardState
     tilemap:BoardTileMap;
 }
 
-export class BoardSprite extends PIXI.Sprite implements BoardThing
+export class BoardTileSprite extends PIXI.Sprite implements BoardTile
 {
-    constructor()
+    frame: number = 0;
+    order: number = 0;
+    atlas:number = 0;
+    update(layer:number, index:number, tilemap:BoardTileMap, atlases:AtlasMap)
     {
-        super();
-       
-    }
+        const tile = tilemap.layers[layer][index];
+        const atlas = atlases[tile.atlas];
 
+
+        if (this.texture.baseTexture != atlas.texture)
+        {
+            this.texture = new PIXI.Texture(atlas.texture);
+            this.frame - 1;
+        }
+
+        if (this.frame != tile.frame)
+        {
+            this.frame = tile.frame;
+            const w = atlas.texture.width / atlas.width;
+            const h = atlas.texture.height / atlas.height;
+            const x = this.frame % atlas.width * w;
+            const y = Math.floor(this.frame / atlas.width) * h;
+            this.texture.frame = new PIXI.Rectangle(x, y, w, h);
+            this.width = 1;
+            this.height = 1;
+            this.anchor.set(0.0, 0.0);
+        }
+    }
+}
+
+export class BoardThingSprite extends PIXI.Sprite implements BoardThing
+{
     radius: number = 1;
     frame: number = 0;
     order: number = 0;
-    textureIndex:number = 0;
+    atlas:number = 0;
 
     update(boardThing:BoardThing, board:Board)
     {
         this.radius = boardThing.radius;
         this.order = boardThing.order;
-        this.textureIndex = boardThing.textureIndex;
+        this.atlas = boardThing.atlas;
         
         this.x = boardThing.x;
         this.y = boardThing.y;
-        const atlas = board.textures[this.textureIndex];
+        this.zIndex = boardThing.order;
+        const atlas = board.textures[this.atlas];
         if (this.texture.baseTexture != atlas.texture)
         {
             this.texture = new PIXI.Texture(atlas.texture);
@@ -80,13 +107,6 @@ export class BoardSprite extends PIXI.Sprite implements BoardThing
             this.height = 1;
             this.anchor.set(0.5, 0.5);
         }
-
-        
-
-       /* this.texture.frame.width = atlas.texture.width / atlas.width;
-        console.log(this.texture.frame.width);
-        this.texture.frame.height = atlas.texture.height / atlas.height;*/
-
     }
 }
 
@@ -105,13 +125,68 @@ export type AtlasMap = {[id:number]:Atlas};
  */
 export class Board extends PIXI.Container
 {
-    things:{[id:number]:BoardSprite} = {};
-
+    tilemapWidth:number = 0;
+    tilemapHeight:number = 0;
+    things:{[id:number]:BoardThingSprite} = {};
+    layers:BoardTileSprite[][] = [];
     textures:AtlasMap;
     constructor(textures:AtlasMap)
     {
         super();
         this.textures = textures;
+        this.sortableChildren = true;
+    }
+
+    private updateThings(state:BoardState)
+    {
+        for (let id in state.things)
+        {
+            let thing = state.things[id];
+            let sprite = this.things[id] as BoardThingSprite;
+            if (sprite == null)
+            {
+                sprite = new BoardThingSprite();
+                this.things[id] = sprite;
+                this.addChild(sprite);
+            }
+
+            sprite.update(thing, this);
+        }
+    }
+
+    private updateTilemap(state:BoardState)
+    {
+        if (this.layers.length != state.tilemap.layers.length || state.tilemap.width == this.tilemapWidth || state.tilemap.height == this.tilemapHeight)
+        {
+            this.layers.forEach(layer=>layer.forEach(s=>this.removeChild(s)));
+            this.layers = [];
+            for (let i = 0; i < state.tilemap.layers.length; i++)
+            {
+                const l = [] as BoardTileSprite[];
+                for (let y = 0; y < state.tilemap.height; y++)
+                    for (let x = 0; x < state.tilemap.width; x++)
+                    {
+                        const s = new BoardTileSprite();
+                        s.x = x;
+                        s.y = y;
+                        this.addChild(s);
+                        l.push(s);
+                    }
+
+                this.layers.push(l);
+            }
+        }
+
+        for (let i = 0; i < state.tilemap.layers.length; i++)
+        {
+            const spriteLayer = this.layers[i];
+            const layer = state.tilemap.layers[i];
+            for (let j = 0; j < layer.length; j++)
+            {
+                const sprite = spriteLayer[j];
+                sprite.update(i, j, state.tilemap, this.textures);
+            }
+        }
     }
 
     update(state:BoardState)
@@ -121,18 +196,8 @@ export class Board extends PIXI.Container
             if (atlas.texture.width == 0)
                 return; // not loaded yet, return untill loaded
         }
-        for (let id in state.things)
-        {
-            let thing = state.things[id];
-            let sprite = this.things[id] as BoardSprite;
-            if (sprite == null)
-            {
-                sprite = new BoardSprite();
-                this.things[id] = sprite;
-                this.addChild(sprite);
-            }
-
-            sprite.update(thing, this);
-        }
+        
+        this.updateThings(state);
+        this.updateTilemap(state);
     }
 }

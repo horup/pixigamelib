@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { Board, BoardState } from '../board';
+import { Board, BoardState, BoardTileMap } from '../board';
 declare var require;
 
 // load textures
@@ -12,40 +12,48 @@ const app = new PIXI.Application({
     view:canvas as any
 })
 
+const tilemap:BoardTileMap = {
+    width:64,
+    height:64,
+    layers:[
+        []
+    ]
+}
+
+for (let i = 0; i < tilemap.width*tilemap.height; i++)
+{
+    tilemap.layers[0].push({frame:i%4, order:0, atlas:0});
+}
 
 // construct sample state to be rendered
 let s:BoardState = {
     things:{
         "0":{
             frame:0,
-            order:0,
+            order:1,
             radius:1,
-            textureIndex:1,
+            atlas:1,
             x:1,
             y:1
         },
         "1":{
             frame:1,
-            order:0,
+            order:1,
             radius:1,
-            textureIndex:1,
+            atlas:1,
             x:2,
             y:2
         },
         "2":{
             frame:2,
-            order:0,
+            order:1,
             radius:1,
-            textureIndex:1,
+            atlas:1,
             x:3,
             y:3
         }
     },
-    tilemap:{
-        width:0,
-        height:0,
-        layers:[]
-    }
+    tilemap:tilemap
 }
 
 // make board and put on stage
