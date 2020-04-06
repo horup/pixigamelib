@@ -19,8 +19,8 @@ const app = new PIXI.Application({
 
 
 const tilemap:BoardTileMap = {
-    width:16,
-    height:16,
+    width:64,
+    height:48,
     layers:[
         []
     ]
@@ -50,7 +50,7 @@ board.scale.set(16);
 
 app.stage.addChild(board);
 
-const debug = new PIXI.Text("debug");
+const debug = new PIXI.Text("debug", {fill:'white', fontSize:16});
 app.stage.addChild(debug);
 
 class Man implements BoardThing
@@ -81,7 +81,7 @@ function spawnMan()
     man.x = Math.random() * s.tilemap.width;
     man.y = Math.random() * s.tilemap.height;
     s.things[nextId++] = man;
-    board.addFloatingText("Hi!", man.x, man.y);
+    board.addFloatingText("Hi!", man.x, man.y, {fill:'white', fontSize:32});
 }
 
 let iterations = 0;
@@ -100,7 +100,7 @@ app.ticker.add(()=>
         m.update(app.ticker);
         if (m.life <= 0)
         {
-            board.addFloatingText("Bye!", m.x, m.y);
+            board.addFloatingText("Bye!", m.x, m.y, {fontSize:32});
             delete s.things[id];
         }
     });

@@ -139,7 +139,7 @@ export class Board extends PIXI.Container
         this.sortableChildren = true;
     }
 
-    addFloatingText(s:string, x:number, y:number, style?:PIXI.TextStyle)
+    addFloatingText(s:string, x:number, y:number, style?:Partial<PIXI.TextStyle>)
     {
         const t = new FloatingText(s, style);
         t.x = x;
