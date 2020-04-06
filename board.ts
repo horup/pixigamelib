@@ -49,7 +49,7 @@ export class BoardTileSprite extends PIXI.Sprite implements BoardTile
     {
         const tile = tilemap.layers[layer][index];
         const atlas = atlases[tile.atlas];
-
+        this.zIndex = tile.order;
 
         if (this.texture.baseTexture != atlas.texture)
         {

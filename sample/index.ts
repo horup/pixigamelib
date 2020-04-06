@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { Board, BoardState, BoardTileMap } from '../board';
+import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 declare var require;
 
 // load textures
@@ -22,37 +22,12 @@ const tilemap:BoardTileMap = {
 
 for (let i = 0; i < tilemap.width*tilemap.height; i++)
 {
-    tilemap.layers[0].push({frame:i%4, order:0, atlas:0});
+    tilemap.layers[0].push({frame:0, order:-1, atlas:0});
 }
 
 // construct sample state to be rendered
 let s:BoardState = {
-    things:{
-        "0":{
-            frame:0,
-            order:1,
-            radius:1,
-            atlas:1,
-            x:1,
-            y:1
-        },
-        "1":{
-            frame:1,
-            order:1,
-            radius:1,
-            atlas:1,
-            x:2,
-            y:2
-        },
-        "2":{
-            frame:2,
-            order:1,
-            radius:1,
-            atlas:1,
-            x:3,
-            y:3
-        }
-    },
+    things:{},
     tilemap:tilemap
 }
 
@@ -66,8 +41,46 @@ const board = new Board({
 board.scale.set(16);
 app.stage.addChild(board);
 
+class Man implements BoardThing
+{
+    x: number = 0;
+    y: number = 0;
+    radius: number = 1;
+    frame: number = Math.floor(Math.random() * 4);
+    atlas: number = 1;
+    order: number = 0;
+    
+    update()
+    {
+        const speed = 0.1;
+        this.x += (Math.random() - 0.5) * speed;
+        this.y += (Math.random() - 0.5) * speed;
+        this.order = this.y;
+    }
+}
+
+let nextId = 0;
+
+function spawnMan()
+{
+    const man = new Man();
+    man.x = Math.random() * 64;
+    man.y = Math.random() * 64;
+    s.things[nextId++] = man;
+}
+
 app.ticker.add(()=>
 {
+    if (Object.keys(s.things).length < 1000)
+    {
+        spawnMan();
+    }
+
+    Object.values(s.things).forEach((m:Man)=>(m.update()));
+    
+    const i = Math.floor(Math.random()*64*64);
+    s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
+
     board.update(s)
 })
 
