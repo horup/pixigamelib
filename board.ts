@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { FloatingText } from './floatingtext';
 
 
 
@@ -128,6 +129,7 @@ export class Board extends PIXI.Container
     tilemapWidth:number = 0;
     tilemapHeight:number = 0;
     things:{[id:number]:BoardThingSprite} = {};
+    floatingTexts:FloatingText[] = [];
     layers:BoardTileSprite[][] = [];
     textures:AtlasMap;
     constructor(textures:AtlasMap)
@@ -137,7 +139,26 @@ export class Board extends PIXI.Container
         this.sortableChildren = true;
     }
 
-    private updateThings(state:BoardState)
+    addFloatingText(s:string, x:number, y:number, style?:PIXI.TextStyle)
+    {
+        const t = new FloatingText(s, style);
+        t.x = x;
+        t.y = y;
+        this.floatingTexts.push(t);
+        this.addChild(t);
+        return t;
+    }
+
+    private tickFloatingTexts(ticker:PIXI.Ticker)
+    {
+        this.floatingTexts.forEach(v=>v.tick(ticker));
+        const remove = this.floatingTexts.filter(v=>v.alpha <= 0);
+        remove.forEach(r=>this.removeChild(r));
+        if (remove.length != 0)
+            this.floatingTexts = this.floatingTexts.filter(v=>v.alpha > 0);
+    }
+
+    private tickThings(ticker:PIXI.Ticker, state:BoardState)
     {
         for (let id in state.things)
         {
@@ -152,9 +173,18 @@ export class Board extends PIXI.Container
 
             sprite.update(thing, this);
         }
+
+        for (let id in this.things)
+        {
+            if (state.things[id] == undefined)
+            {
+                this.removeChild(this.things[id]);
+                delete this.things[id];
+            }
+        }
     }
 
-    private updateTilemap(state:BoardState)
+    private tickTilemap(ticker:PIXI.Ticker, state:BoardState)
     {
         if (this.layers.length != state.tilemap.layers.length || state.tilemap.width == this.tilemapWidth || state.tilemap.height == this.tilemapHeight)
         {
@@ -189,7 +219,7 @@ export class Board extends PIXI.Container
         }
     }
 
-    update(state:BoardState)
+    tick(ticker:PIXI.Ticker, state:BoardState)
     {
         for (const atlas of Object.values(this.textures))
         {
@@ -197,7 +227,8 @@ export class Board extends PIXI.Container
                 return; // not loaded yet, return untill loaded
         }
         
-        this.updateThings(state);
-        this.updateTilemap(state);
+        this.tickThings(ticker, state);
+        this.tickTilemap(ticker, state);
+        this.tickFloatingTexts(ticker);
     }
 }

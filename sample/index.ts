@@ -49,7 +49,7 @@ app.stage.addChild(board);
 
 class Man implements BoardThing
 {
-    life:number = 60*10;
+    life:number = 60*2;
     x: number = 0;
     y: number = 0;
     radius: number = 1;
@@ -57,10 +57,10 @@ class Man implements BoardThing
     atlas: number = 1;
     order: number = 0;
     
-    update()
+    update(ticker:PIXI.Ticker)
     {
         this.life -= 1;
-        const speed = 0.1;
+        const speed = ticker.deltaTime * 0.1;
         this.x += (Math.random() - 0.5) * speed;
         this.y += (Math.random() - 0.5) * speed;
         this.order = this.y;
@@ -75,10 +75,7 @@ function spawnMan()
     man.x = Math.random() * 64;
     man.y = Math.random() * 64;
     s.things[nextId++] = man;
-    const msg = new FloatingText("Hi!", app.ticker);
-    msg.x = man.x;
-    msg.y = man.y;
-    board.addChild(msg);
+    board.addFloatingText("Hi!", man.x, man.y);
 }
 
 app.ticker.add(()=>
@@ -91,13 +88,10 @@ app.ticker.add(()=>
     Object.entries(s.things).forEach((v)=>{
         const m = v[1] as Man;
         const id = v[0] as string;
-        m.update();
+        m.update(app.ticker);
         if (m.life <= 0)
         {
-            const msg = new FloatingText("Bye!", app.ticker);
-            msg.x = m.x;
-            msg.y = m.y;
-            board.addChild(msg);
+            board.addFloatingText("Bye!", m.x, m.y);
             delete s.things[id];
         }
     });
@@ -105,6 +99,6 @@ app.ticker.add(()=>
     const i = Math.floor(Math.random()*64*64);
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
-    board.update(s);
+    board.tick(app.ticker, s);
 })
 
