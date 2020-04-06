@@ -55,7 +55,7 @@ export class BoardTileSprite extends PIXI.Sprite implements BoardTile
         if (this.texture.baseTexture != atlas.texture)
         {
             this.texture = new PIXI.Texture(atlas.texture);
-            this.frame - 1;
+            this.frame = -1;
         }
 
         if (this.frame != tile.frame)
@@ -194,6 +194,7 @@ export class Board extends PIXI.Container
             {
                 const l = [] as BoardTileSprite[];
                 for (let y = 0; y < state.tilemap.height; y++)
+                {
                     for (let x = 0; x < state.tilemap.width; x++)
                     {
                         const s = new BoardTileSprite();
@@ -202,6 +203,7 @@ export class Board extends PIXI.Container
                         this.addChild(s);
                         l.push(s);
                     }
+                }
 
                 this.layers.push(l);
             }

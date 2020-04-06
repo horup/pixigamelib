@@ -3,6 +3,7 @@ import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 import { FloatingText } from '../floatingtext';
 declare var require;
 
+
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
 // load textures
@@ -12,12 +13,14 @@ const menTexture = PIXI.BaseTexture.from(require("./men.png"));
 // create app
 const canvas = document.getElementById('canvas');
 const app = new PIXI.Application({
-    view:canvas as any
+    view:canvas as any,
+    resizeTo:window
 })
 
+
 const tilemap:BoardTileMap = {
-    width:64,
-    height:64,
+    width:16,
+    height:16,
     layers:[
         []
     ]
@@ -75,8 +78,8 @@ let nextId = 0;
 function spawnMan()
 {
     const man = new Man();
-    man.x = Math.random() * 64;
-    man.y = Math.random() * 64;
+    man.x = Math.random() * s.tilemap.width;
+    man.y = Math.random() * s.tilemap.height;
     s.things[nextId++] = man;
     board.addFloatingText("Hi!", man.x, man.y);
 }
@@ -102,7 +105,7 @@ app.ticker.add(()=>
         }
     });
     
-    const i = Math.floor(Math.random()*64*64);
+    const i = Math.floor(Math.random()*s.tilemap.width*s.tilemap.height);
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
     board.tick(app.ticker, s);
