@@ -47,9 +47,12 @@ board.scale.set(16);
 
 app.stage.addChild(board);
 
+const debug = new PIXI.Text("debug");
+app.stage.addChild(debug);
+
 class Man implements BoardThing
 {
-    life:number = 60*2;
+    life:number = 60*600;
     x: number = 0;
     y: number = 0;
     radius: number = 1;
@@ -78,9 +81,12 @@ function spawnMan()
     board.addFloatingText("Hi!", man.x, man.y);
 }
 
+let iterations = 0;
 app.ticker.add(()=>
 {
-    if (Object.keys(s.things).length < 1000)
+    iterations++;
+    const len = Object.keys(s.things).length;
+    if (len< 10000)
     {
         spawnMan();
     }
@@ -100,5 +106,8 @@ app.ticker.add(()=>
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
     board.tick(app.ticker, s);
+
+    if (iterations % 60 == 0)
+        debug.text = `FPS:${Math.floor(app.ticker.FPS)} MEN:${len}`
 })
 
