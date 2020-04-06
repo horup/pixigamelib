@@ -1,6 +1,9 @@
 import * as PIXI from 'pixi.js';
 import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
+import { FloatingText } from '../floatingtext';
 declare var require;
+
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
 // load textures
 const tilesTexture = PIXI.BaseTexture.from(require("./tiles.png"));
@@ -38,11 +41,15 @@ const board = new Board({
     1:{width:2, height:2, texture:menTexture}
 })
 
+board.x = 0;
+board.y = 0;
 board.scale.set(16);
+
 app.stage.addChild(board);
 
 class Man implements BoardThing
 {
+    life:number = 60*10;
     x: number = 0;
     y: number = 0;
     radius: number = 1;
@@ -52,6 +59,7 @@ class Man implements BoardThing
     
     update()
     {
+        this.life -= 1;
         const speed = 0.1;
         this.x += (Math.random() - 0.5) * speed;
         this.y += (Math.random() - 0.5) * speed;
@@ -67,6 +75,10 @@ function spawnMan()
     man.x = Math.random() * 64;
     man.y = Math.random() * 64;
     s.things[nextId++] = man;
+    const msg = new FloatingText("Hi!", app.ticker);
+    msg.x = man.x;
+    msg.y = man.y;
+    board.addChild(msg);
 }
 
 app.ticker.add(()=>
@@ -76,11 +88,23 @@ app.ticker.add(()=>
         spawnMan();
     }
 
-    Object.values(s.things).forEach((m:Man)=>(m.update()));
+    Object.entries(s.things).forEach((v)=>{
+        const m = v[1] as Man;
+        const id = v[0] as string;
+        m.update();
+        if (m.life <= 0)
+        {
+            const msg = new FloatingText("Bye!", app.ticker);
+            msg.x = m.x;
+            msg.y = m.y;
+            board.addChild(msg);
+            delete s.things[id];
+        }
+    });
     
     const i = Math.floor(Math.random()*64*64);
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
-    board.update(s)
+    board.update(s);
 })
 
