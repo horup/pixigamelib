@@ -16,8 +16,8 @@ export function zoom(container:PIXI.Container, speed:number, point:PIXI.Point)
     const g1 = point;
     container.scale.set(s);
     const g2 = container.toGlobal(l1);
-    const vx = g2.x - g1.x;
-    const vy = g2.y - g1.y;
+    const vx = (g2.x - g1.x);
+    const vy = (g2.y - g1.y);
 
     container.position.x -= vx;
     container.position.y -= vy;

@@ -94,7 +94,9 @@ window.onmousewheel = (e:WheelEvent)=>
 {
     const dir = -Math.sign(e.deltaY) ;
     const speed = 1.2;
-    const g = new PIXI.Point(e.clientX, e.clientY);
+    let g = new PIXI.Point(e.clientX, e.clientY);
+    /*if (dir < 0)
+        g.set(app.view.width / 2, app.view.height /2);*/
     zoom(board, speed * dir, g);
 }
 
