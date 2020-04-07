@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 import { FloatingText } from '../floatingtext';
+import { pan, zoom } from '../helpers';
 declare var require;
 
 
@@ -84,12 +85,25 @@ function spawnMan()
     board.addFloatingText("Hi!", man.x, man.y, {fill:'white', fontSize:32});
 }
 
+window.onkeydown = (e)=>
+{
+    pan(board, 1, 0);
+}
+
+window.onmousewheel = (e:WheelEvent)=>
+{
+    const dir = -Math.sign(e.deltaY) ;
+    const speed = 1.2;
+    const g = new PIXI.Point(e.clientX, e.clientY);
+    zoom(board, speed * dir, g);
+}
+
 let iterations = 0;
 app.ticker.add(()=>
 {
     iterations++;
     const len = Object.keys(s.things).length;
-    if (len< 10000)
+    if (len< 1000)
     {
         spawnMan();
     }
