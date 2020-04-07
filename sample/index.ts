@@ -92,6 +92,7 @@ window.onkeydown = (e)=>
 
 window.onmousewheel = (e:WheelEvent)=>
 {
+    console.log(e);
     const dir = -Math.sign(e.deltaY) ;
     const speed = 1.2;
     let g = new PIXI.Point(e.clientX, e.clientY);
