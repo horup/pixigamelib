@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { FloatingText } from './floatingtext';
-
-
+import { AtlasMap } from './atlas';
 
 /** A thing on the board that has a fluid position */
 export interface BoardThing extends BoardTile
@@ -110,14 +109,6 @@ export class BoardThingSprite extends PIXI.Sprite implements BoardThing
         }
     }
 }
-
-export interface Atlas
-{
-    texture:PIXI.BaseTexture;
-    width:number;
-    height:number;
-}
-export type AtlasMap = {[id:number]:Atlas};
 
 
 /** Represents a gameboard with tiles and things. 
