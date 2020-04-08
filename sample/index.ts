@@ -7,7 +7,7 @@ import { interpolateLinear } from '../interpolation';
 declare var require;
 
 
-PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+//PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
 // load textures
 const tilesTexture = PIXI.BaseTexture.from(require("./tiles.png"));
@@ -22,8 +22,8 @@ const app = new PIXI.Application({
 
 
 const tilemap:BoardTileMap = {
-    width:64,
-    height:48,
+    width:256,
+    height:256,
     layers:[
         []
     ]
@@ -100,7 +100,7 @@ function spawnMan()
 
 window.onkeydown = (e)=>
 {
-    pan(board, 1, 0);
+    
 }
 
 window.onmousewheel = (e:WheelEvent)=>
@@ -112,6 +112,15 @@ window.onmousewheel = (e:WheelEvent)=>
     /*if (dir < 0)
         g.set(app.view.width / 2, app.view.height /2);*/
     zoom(board, speed * dir, g);
+}
+
+
+window.onmousemove = (e:MouseEvent)=>{
+    if (e.buttons == 1)
+    {
+        pan(board, -e.movementX, -e.movementY);
+    }
+    //pan(board, 1, 1);
 }
 
 let iterations = 0;
@@ -161,6 +170,6 @@ app.ticker.add(()=>
     clientCalc.tick();
     interpolate();
     board.tick(app.ticker, s);
-    debug.text = `Last:${clientCalc.factor(serverCalc)}`;
+    debug.text = `FPS:${app.ticker.FPS}`;
 })
 
