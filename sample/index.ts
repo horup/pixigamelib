@@ -141,7 +141,7 @@ setInterval(()=>{
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
     serverCalc.tick();
-}, 1000);
+}, 33);
 
 
 function interpolate()
