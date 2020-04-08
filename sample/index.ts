@@ -3,7 +3,7 @@ import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 import { FloatingText } from '../floatingtext';
 import { pan, zoom } from '../helpers';
 import { TickrateCalculator} from '../tickratecalculator';
-import { interpolateLinear } from '../interpolation';
+import { interpolateLinear } from '../interpolations';
 declare var require;
 
 
