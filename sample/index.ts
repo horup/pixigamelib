@@ -3,6 +3,7 @@ import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 import { FloatingText } from '../floatingtext';
 import { pan, zoom } from '../helpers';
 import { TickrateCalculator} from '../tickratecalculator';
+import { interpolateLinear } from '../interpolation';
 declare var require;
 
 
@@ -60,18 +61,29 @@ class Man implements BoardThing
     life:number = 60*600;
     x: number = 0;
     y: number = 0;
+    prevPos:{x:number, y:number} = {x:0, y:0};
+    pos:{x:number, y:number} = {x:0, y:0};
     radius: number = 1;
     frame: number = Math.floor(Math.random() * 4);
     atlas: number = 1;
     order: number = 0;
+
+    constructor(x:number, y:number)
+    {
+        this.x = x;
+        this.y = y;
+        this.prevPos = {x:x, y:y};
+        this.pos = {x:x, y:y};
+    }
     
-    update(ticker:PIXI.Ticker)
+    update()
     {
         this.life -= 1;
-        const speed = ticker.deltaTime * 1;
-        this.x += (Math.random() - 0.5) * speed;
-        this.y += (Math.random() - 0.5) * speed;
-        this.order = this.y;
+        const speed = 1;
+        this.prevPos = this.pos;
+        this.pos = {...this.prevPos};
+        this.pos.x += (Math.random() - 0.5) * speed;
+        this.pos.y += (Math.random() - 0.5) * speed;
     }
 }
 
@@ -79,9 +91,9 @@ let nextId = 0;
 
 function spawnMan()
 {
-    const man = new Man();
-    man.x = Math.random() * s.tilemap.width;
-    man.y = Math.random() * s.tilemap.height;
+    const man = new Man(Math.random() * s.tilemap.width,
+        Math.random() * s.tilemap.height);
+    
     s.things[nextId++] = man;
     board.addFloatingText("Hi!", man.x, man.y, {fill:'white', fontSize:32});
 }
@@ -104,7 +116,7 @@ window.onmousewheel = (e:WheelEvent)=>
 
 let iterations = 0;
 
-const serverCalc = new TickrateCalculator();
+const serverCalc = new TickrateCalculator(2);
 const clientCalc = new TickrateCalculator();
 
 setInterval(()=>{
@@ -117,7 +129,7 @@ setInterval(()=>{
     Object.entries(s.things).forEach((v)=>{
         const m = v[1] as Man;
         const id = v[0] as string;
-        m.update(app.ticker);
+        m.update();
         if (m.life <= 0)
         {
             board.addFloatingText("Bye!", m.x, m.y, {fontSize:32});
@@ -129,13 +141,26 @@ setInterval(()=>{
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
     serverCalc.tick();
-}, 2000);
+}, 1000);
 
+
+function interpolate()
+{
+   // if (serverCalc.stable && clientCalc.stable)
+    {
+        const f = clientCalc.factor(serverCalc);
+        Object.values(s.things).forEach((t:Man)=>{
+            t.x = interpolateLinear(t.prevPos.x, t.pos.x, f);
+            t.y = interpolateLinear(t.prevPos.y, t.pos.y, f);
+        });
+    }
+}
 
 app.ticker.add(()=>
 {
-    board.tick(app.ticker, s);
     clientCalc.tick();
+    interpolate();
+    board.tick(app.ticker, s);
     debug.text = `Last:${clientCalc.factor(serverCalc)}`;
 })
 

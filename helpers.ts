@@ -9,7 +9,7 @@ export function pan(container:PIXI.Container, vx:number, vy:number)
 
 export function zoom(container:PIXI.Container, speed:number, point:PIXI.Point)
 {
-    if (speed > 0)
+    if (Math.abs(speed) > 0)
     {
         const factor = speed > 0 ? speed : 1/Math.abs(speed);
         let s = container.scale.x * factor;
