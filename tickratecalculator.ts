@@ -23,7 +23,7 @@ export class TickrateCalculator
 
     get stable()
     {
-        return this.tick.length == this.maxTicks;
+        return this.ticks.length == this.maxTicks;
     }
 
     private _lasttick;
