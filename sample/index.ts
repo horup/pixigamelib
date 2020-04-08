@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 import { FloatingText } from '../floatingtext';
 import { pan, zoom } from '../helpers';
-import { TickRateCalculator as TickrateCalculator } from '../tickratecalculator';
+import { TickrateCalculator} from '../tickratecalculator';
 declare var require;
 
 
@@ -104,8 +104,8 @@ window.onmousewheel = (e:WheelEvent)=>
 
 let iterations = 0;
 
-const serverTickrateCalculator = new TickrateCalculator();
-const clientTickrateCalculator = new TickrateCalculator();
+const serverCalc = new TickrateCalculator();
+const clientCalc = new TickrateCalculator();
 
 setInterval(()=>{
     const len = Object.keys(s.things).length;
@@ -128,14 +128,14 @@ setInterval(()=>{
     const i = Math.floor(Math.random()*s.tilemap.width*s.tilemap.height);
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
-    serverTickrateCalculator.tick();
-    debug.text = `FPS:${Math.floor(app.ticker.FPS)} MEN:${len} ServerTickrate:${serverTickrateCalculator.avgMS} ClienTickrate:${clientTickrateCalculator.avgMS}`;
-}, 100);
+    serverCalc.tick();
+}, 2000);
 
 
 app.ticker.add(()=>
 {
     board.tick(app.ticker, s);
-    clientTickrateCalculator.tick();
+    clientCalc.tick();
+    debug.text = `Last:${clientCalc.factor(serverCalc)}`;
 })
 
