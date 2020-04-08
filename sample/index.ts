@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Board, BoardState, BoardTileMap, BoardThing } from '../board';
 import { FloatingText } from '../floatingtext';
 import { pan, zoom } from '../helpers';
+import { TickRateCalculator as TickrateCalculator } from '../tickratecalculator';
 declare var require;
 
 
@@ -67,7 +68,7 @@ class Man implements BoardThing
     update(ticker:PIXI.Ticker)
     {
         this.life -= 1;
-        const speed = ticker.deltaTime * 0.1;
+        const speed = ticker.deltaTime * 1;
         this.x += (Math.random() - 0.5) * speed;
         this.y += (Math.random() - 0.5) * speed;
         this.order = this.y;
@@ -102,9 +103,11 @@ window.onmousewheel = (e:WheelEvent)=>
 }
 
 let iterations = 0;
-app.ticker.add(()=>
-{
-    iterations++;
+
+const serverTickrateCalculator = new TickrateCalculator();
+const clientTickrateCalculator = new TickrateCalculator();
+
+setInterval(()=>{
     const len = Object.keys(s.things).length;
     if (len< 1000)
     {
@@ -125,9 +128,14 @@ app.ticker.add(()=>
     const i = Math.floor(Math.random()*s.tilemap.width*s.tilemap.height);
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
-    board.tick(app.ticker, s);
+    serverTickrateCalculator.tick();
+    debug.text = `FPS:${Math.floor(app.ticker.FPS)} MEN:${len} ServerTickrate:${serverTickrateCalculator.avgMS} ClienTickrate:${clientTickrateCalculator.avgMS}`;
+}, 100);
 
-    if (iterations % 60 == 0)
-        debug.text = `FPS:${Math.floor(app.ticker.FPS)} MEN:${len}`
+
+app.ticker.add(()=>
+{
+    board.tick(app.ticker, s);
+    clientTickrateCalculator.tick();
 })
 
