@@ -1,12 +1,13 @@
 import * as PIXI from 'pixi.js';
 
-
+/** Pans the container with the given amount */
 export function pan(container:PIXI.Container, vx:number, vy:number)
 {
     container.x -= vx;
     container.y -= vy;
 }
 
+/** Performs a zoom on the container, with the given speed with the given point in focus */
 export function zoom(container:PIXI.Container, speed:number, point:PIXI.Point)
 {
     if (Math.abs(speed) > 0)
