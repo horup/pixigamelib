@@ -3,8 +3,8 @@ import { FadingText } from './fadingtext';
 import { AtlasSprite, AtlasSpriteProps } from './atlassprite';
 import { AtlasMap } from '.';
 
-type Tilemap<T> = {[y:number]:{[x:number]:T}};
-type Layers<T> = {[layer:number]:Tilemap<T>};
+export type Tilemap<T> = {[y:number]:{[x:number]:T}};
+export type LayeredTilemap<T> = {[layer:number]:Tilemap<T>};
 
 export interface AtlasTileProps
 {
@@ -20,7 +20,7 @@ export interface AtlasTileProps
 export class AtlasSpriteContainer extends PIXI.Container
 {
     private sprites:{[id:string]:AtlasSprite} = {};
-    private tiles:Layers<AtlasSprite> = {};
+    private tiles:LayeredTilemap<AtlasSprite> = {};
     private atlasMap:AtlasMap;
     constructor(atlasMap:AtlasMap)
     {

@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { AtlasSpriteContainer } from '../atlasspritecontainer';
+import { AtlasSpriteContainer, Tilemap, AtlasTileProps } from '../atlasspritecontainer';
 import { FadingText } from '../fadingtext';
 import { pan, zoom } from '../helpers';
 import { TickrateCalculator} from '../tickratecalculator';
@@ -14,6 +14,7 @@ declare var require;
 const tilesTexture = PIXI.BaseTexture.from(require("./tiles.png"));
 const menTexture = PIXI.BaseTexture.from(require("./men.png"));
 
+
 // create app
 const canvas = document.getElementById('canvas');
 const app = new PIXI.Application({
@@ -24,16 +25,10 @@ const app = new PIXI.Application({
 
 const tilemap = {
     width:64,
-    height:64,
-    layers:[
-        []
-    ]
+    height:64
+    
 }
 
-for (let i = 0; i < tilemap.width*tilemap.height; i++)
-{
-    tilemap.layers[0].push({frame:0, zIndex:-1, atlas:0});
-}
 
 // construct sample state to be rendered
 let s = {
@@ -47,6 +42,28 @@ const board = new AtlasSpriteContainer({
     0:{width:2, height:2, texture:tilesTexture},
     1:{width:2, height:2, texture:menTexture}
 })
+
+
+setTimeout(()=>{
+    {
+        const map:Tilemap<AtlasTileProps> = {};
+        for (let y = 0; y < tilemap.height; y++)
+        {
+            map[y] = {};
+            for (let x = 0; x < tilemap.width; x++)
+            {
+                map[y][x] = {
+                    atlas:0,
+                    frame:0,
+                    zIndex:0
+                }
+            }
+        }
+    
+        board.setTiles(0, map);
+    }
+}, 1000);
+
 
 board.x = 0;
 board.y = 0;
