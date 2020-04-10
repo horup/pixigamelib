@@ -59,7 +59,7 @@ app.stage.addChild(debug);
 
 class Man implements AtlasSpriteProps
 {
-    life:number = 60*600;
+    life:number = Math.random()*100;
     x: number = 0;
     y: number = 0;
     prevPos:{x:number, y:number} = {x:0, y:0};
@@ -149,6 +149,13 @@ setInterval(()=>{
         {
          //   board.addFloatingText("Bye!", m.x, m.y, {fontSize:32});
             delete s.things[id];
+            board.deleteSprites({[id]:{}});
+            const t = new FadingText(app.ticker, {
+                text:"Bye!",
+                x:m.x,
+                y:m.y
+            })
+            board.addChild(t);
         }
     });
     
@@ -156,7 +163,7 @@ setInterval(()=>{
     s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
 
     serverCalc.tick();
-}, 1000);
+}, 33);
 
 
 function interpolate()
