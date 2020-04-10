@@ -1,123 +1,75 @@
 import * as PIXI from 'pixi.js';
-import { FloatingText } from './floatingtext';
-import { AtlasMap } from './atlas';
+import { FadingText } from './fadingtext';
+import { AtlasSprite, AtlasSpriteProps } from './atlassprite';
+import { AtlasMap } from '.';
 
-/** A thing on the board that has a fluid position */
-export interface BoardThing extends BoardTile
-{
-    x:number;
-    y:number;
-    radius:number;
-}
-
-export interface BoardTile
-{
-    /** The index which contains the texture to use */
-    frame:number;
-
-    /** The index which contains the atlas to use */
-    atlas:number;
-
-    /** Render order as to control overlapping */
-    order:number;
-}
-
-export interface BoardTileMap
-{
-    /** Width of the tilemap */
-    width:number;
-    height:number;
-    /** Layers containing tiles */
-    layers:BoardTile[][];
-}
-
-/** The state of the board. 
- *  Interface must be implemented by consumer and can be extended 
- *  for the particular game needs */
-export interface BoardState
-{
-    things:{[id:string]:BoardThing};
-    tilemap:BoardTileMap;
-}
-
-export class BoardTileSprite extends PIXI.Sprite implements BoardTile
-{
-    frame: number = 0;
-    order: number = 0;
-    atlas:number = 0;
-    update(layer:number, index:number, tilemap:BoardTileMap, atlases:AtlasMap)
-    {
-        const tile = tilemap.layers[layer][index];
-        const atlas = atlases[tile.atlas];
-        this.zIndex = tile.order;
-
-        if (this.texture.baseTexture != atlas.texture)
-        {
-            this.texture = new PIXI.Texture(atlas.texture);
-            this.frame = -1;
-        }
-
-        if (this.frame != tile.frame)
-        {
-            this.frame = tile.frame;
-            const w = atlas.texture.width / atlas.width;
-            const h = atlas.texture.height / atlas.height;
-            const x = this.frame % atlas.width * w;
-            const y = Math.floor(this.frame / atlas.width) * h;
-            this.texture.frame = new PIXI.Rectangle(x, y, w, h);
-            this.width = 1;
-            this.height = 1;
-            this.anchor.set(0.0, 0.0);
-        }
-    }
-}
-
-export class BoardThingSprite extends PIXI.Sprite implements BoardThing
-{
-    radius: number = 1;
-    frame: number = 0;
-    order: number = 0;
-    atlas:number = 0;
-
-    update(boardThing:BoardThing, board:Board)
-    {
-        this.radius = boardThing.radius;
-        this.order = boardThing.order;
-        this.atlas = boardThing.atlas;
-        
-        this.x = boardThing.x;
-        this.y = boardThing.y;
-        this.zIndex = boardThing.order;
-        const atlas = board.textures[this.atlas];
-        if (this.texture.baseTexture != atlas.texture)
-        {
-            this.texture = new PIXI.Texture(atlas.texture);
-            this.frame = -1;
-        }
-
-        if (this.frame != boardThing.frame)
-        {
-            this.frame = boardThing.frame;
-            const w = atlas.texture.width / atlas.width;
-            const h = atlas.texture.height / atlas.height;
-            const x = this.frame % atlas.width * w;
-            const y = Math.floor(this.frame / atlas.width) * h;
-            this.texture.frame = new PIXI.Rectangle(x, y, w, h);
-            this.width = 1;
-            this.height = 1;
-            this.anchor.set(0.5, 0.5);
-        }
-    }
-}
-
-
-/** Represents a gameboard with tiles and things. 
- *  Assumes a size of 1x1 per thing and tile. 
- *  Scale to appropriate size. 
+/**A container of AtlasSprites.
+ * Provides set, spread and delete methods which makes it convienient to update
+ * the sprites of the container. 
  */
-export class Board extends PIXI.Container
+export class AtlasSpriteContainer extends PIXI.Container
 {
-    tilemapWidth:number = 0;
+    private sprites:{[id:string]:AtlasSprite} = {};
+    private atlasMap:AtlasMap;
+    constructor(atlasMap:AtlasMap)
+    {
+        super();
+        this.atlasMap = atlasMap;
+        this.sortableChildren = true;
+    }
+
+    /** Sets the sprites with the indicated id.
+     *  If the sprite is not found, it is created and added to the container.
+     */
+    setSprites(sprites:{[id:string]:AtlasSpriteProps})
+    {
+        for (let id in sprites)
+        {
+            const props = sprites[id];
+            if (this.sprites[id] == null)
+            {
+                this.sprites[id] = new AtlasSprite(id, props, this.atlasMap);
+                this.addChild(this.sprites[id]);
+            }
+            else
+            {
+                this.sprites[id].spread(props);
+            }
+        }
+    }
+
+    /** Partially sets the sprites with the indicated id.
+     *  Props undefined have no effect on the sprite.
+     *  If the sprite is not found, it is not created and the spread is ignored.
+     */
+    spreadSprites(sprites:{[id:string]:Partial<AtlasSpriteProps>})
+    {
+        for (let id in sprites)
+        {
+            const props = sprites[id];
+            if (this.sprites[id] != null)
+            {
+                //this.sprites[id] = this.sprites[id];//{...this.sprites[id], ...things[id]};
+                const sprite = this.sprites[id];
+                sprite.spread(props);
+            }
+        }
+    }
+
+    /**Deletes the sprites with the given id, and removes them from the container */
+    deleteSprites(sprites:{[id:string]:any})
+    {
+        for (let id in sprites)
+        {
+            if (this.sprites[id])
+            {
+                this.removeChild(this.sprites[id]);
+                delete this.sprites[id];
+            }
+        }
+    }
+
+   /* tilemapWidth:number = 0;
     tilemapHeight:number = 0;
     things:{[id:number]:BoardThingSprite} = {};
     floatingTexts:FloatingText[] = [];
@@ -223,5 +175,5 @@ export class Board extends PIXI.Container
         this.tickThings(ticker, state);
         this.tickTilemap(ticker, state);
         this.tickFloatingTexts(ticker);
-    }
+    }*/
 }
