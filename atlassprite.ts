@@ -49,6 +49,7 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
         let forceFrame = false;
         if (this.texture.baseTexture != atlas.texture)
         {
+            this.texture.destroy();
             this.texture = new PIXI.Texture(atlas.texture);
             forceFrame = true;
         }

@@ -9,7 +9,7 @@ import { CenteredText } from '../centeredtext';
 declare var require;
 
 
-//PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
 const loader = PIXI.Loader.shared;
 loader
@@ -38,8 +38,8 @@ loader.on('complete', ()=>
     status.text = "";
     const res = loader.resources;
     const atlas = {
-        0:{width:2, height:2, texture:res["tiles"].texture},
-        1:{width:2, height:2, texture:res["men"].texture}
+        0:{width:2, height:2, texture:res["tiles"].texture.baseTexture},
+        1:{width:2, height:2, texture:res["men"].texture.baseTexture}
     }
     console.log(loader.resources);
 
@@ -62,25 +62,21 @@ loader.on('complete', ()=>
     const board = new AtlasSpriteContainer(atlas)
 
 
-    setTimeout(()=>{
+    const map:Tilemap<AtlasTileProps> = {};
+    for (let y = 0; y < tilemap.height; y++)
+    {
+        map[y] = {};
+        for (let x = 0; x < tilemap.width; x++)
         {
-            const map:Tilemap<AtlasTileProps> = {};
-            for (let y = 0; y < tilemap.height; y++)
-            {
-                map[y] = {};
-                for (let x = 0; x < tilemap.width; x++)
-                {
-                    map[y][x] = {
-                        atlas:0,
-                        frame:0,
-                        zIndex:0
-                    }
-                }
+            map[y][x] = {
+                atlas:0,
+                frame:0,
+                zIndex:0
             }
-        
-            board.setTiles(0, map);
         }
-    }, 1000);
+    }
+
+    board.setTiles(0, map);
 
 
     board.x = 0;
@@ -131,9 +127,8 @@ loader.on('complete', ()=>
             Math.random() * s.tilemap.height);
         
         s.things[nextId++] = man;
-        const t = new FadingText(app.ticker, {text:"Hi!", x:man.x, y:man.y});
-        board.addChild(t);
-        //board.addFloatingText("Hi!", man.x, man.y, {fill:'white', fontSize:32});
+      /*  const t = new FadingText({text:"Hi!", x:man.x, y:man.y});
+        board.addChild(t);*/
     }
 
     window.onkeydown = (e)=>
@@ -168,10 +163,11 @@ loader.on('complete', ()=>
 
     setInterval(()=>{
         const len = Object.keys(s.things).length;
-        const l = 1000;
-        if (len < l)
+        const l = 100;
+   //     if (len < l)
         {
-            spawnMan();
+            for (let i = len - l; i < l; i++)
+                spawnMan();
         }
 
         Object.entries(s.things).forEach((v)=>{
@@ -181,9 +177,10 @@ loader.on('complete', ()=>
             board.setSprites({[id]:m});
             if (m.life <= 0)
             {
+                
                 delete s.things[id];
                 board.deleteSprites({[id]:{}});
-                const t = new FadingText(app.ticker, {
+                const t = new FadingText({
                     text:"Bye!",
                     x:m.x,
                     y:m.y
@@ -198,7 +195,7 @@ loader.on('complete', ()=>
         const y = Math.floor(Math.random()*s.tilemap.height);
         const frame = Math.floor(Math.random()*4);
 
-        board.setTiles(0, {
+    /*    board.setTiles(0, {
             [y]:{
                 [x]:{
                     atlas:0,
@@ -206,7 +203,7 @@ loader.on('complete', ()=>
                     zIndex:0
                 }
             }
-        })
+        })*/
 
         serverCalc.tick();
     }, 33);

@@ -106,7 +106,8 @@ export class AtlasSpriteContainer extends PIXI.Container
         {
             if (this.sprites[id])
             {
-                this.removeChild(this.sprites[id]);
+                const r = this.removeChild(this.sprites[id]);
+                r.destroy();
                 delete this.sprites[id];
             }
         }
