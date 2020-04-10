@@ -20,6 +20,7 @@ export interface AtlasSpriteProps
     zIndex:number;
 }
 
+
 /** A Sprite which uses an Atlas instead of just a texture.
  */
 export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
@@ -28,11 +29,10 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
     frame:number = -1;
     atlasMap:AtlasMap;
 
-    constructor(id:string, props:AtlasSpriteProps, atlasMap:AtlasMap)
+    constructor(props:AtlasSpriteProps, atlasMap:AtlasMap)
     {
         super(new PIXI.Texture(atlasMap[props.atlas].texture));
         this.atlasMap = atlasMap;
-        this.name = id;
         this.spread(props);
         this.width = 1;
         this.height = 1;

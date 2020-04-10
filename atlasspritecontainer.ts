@@ -3,6 +3,16 @@ import { FadingText } from './fadingtext';
 import { AtlasSprite, AtlasSpriteProps } from './atlassprite';
 import { AtlasMap } from '.';
 
+type Tilemap<T> = {[y:number]:{[x:number]:T}};
+type Layers<T> = {[layer:number]:Tilemap<T>};
+
+export interface AtlasTileProps
+{
+    frame:number;
+    atlas:number;
+    zIndex:number;
+}
+
 /**A container of AtlasSprites.
  * Provides set, spread and delete methods which makes it convienient to update
  * the sprites of the container. 
@@ -10,12 +20,45 @@ import { AtlasMap } from '.';
 export class AtlasSpriteContainer extends PIXI.Container
 {
     private sprites:{[id:string]:AtlasSprite} = {};
+    private tiles:Layers<AtlasSprite> = {};
     private atlasMap:AtlasMap;
     constructor(atlasMap:AtlasMap)
     {
         super();
         this.atlasMap = atlasMap;
         this.sortableChildren = true;
+    }
+
+    setTiles(layer:number, tilemap:Tilemap<AtlasTileProps>)
+    {
+        if (this.tiles[layer] == null)
+            this.tiles[layer] = {};
+        for (let y in tilemap)
+        {
+            if (this.tiles[layer][y] == null)
+                this.tiles[layer][y] = {};
+            for (let x in tilemap[y])
+            {
+                const tile = tilemap[y][x];
+                if (this.tiles[layer][y][x] == null)
+                {
+                    const sprite = new AtlasSprite({
+                        atlas:tile.atlas,
+                        frame:tile.frame,
+                        zIndex:tile.zIndex,
+                        x:parseInt(x),
+                        y:parseInt(y)
+                    }, this.atlasMap);
+                    this.tiles[layer][y][x] = sprite;
+                    this.addChild(sprite);
+                }
+                else
+                {
+                    const sprite = this.tiles[layer][y][x];
+                    sprite.spread(tile);
+                }
+            }
+        }
     }
 
     /** Sets the sprites with the indicated id.
@@ -28,7 +71,7 @@ export class AtlasSpriteContainer extends PIXI.Container
             const props = sprites[id];
             if (this.sprites[id] == null)
             {
-                this.sprites[id] = new AtlasSprite(id, props, this.atlasMap);
+                this.sprites[id] = new AtlasSprite(props, this.atlasMap);
                 this.addChild(this.sprites[id]);
             }
             else

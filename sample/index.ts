@@ -136,8 +136,7 @@ setInterval(()=>{
     const l = 1000;
     if (len < l)
     {
-     //   for (let i = 0 ; i < l; i++)
-            spawnMan();
+        spawnMan();
     }
 
     Object.entries(s.things).forEach((v)=>{
@@ -147,7 +146,6 @@ setInterval(()=>{
         board.setSprites({[id]:m});
         if (m.life <= 0)
         {
-         //   board.addFloatingText("Bye!", m.x, m.y, {fontSize:32});
             delete s.things[id];
             board.deleteSprites({[id]:{}});
             const t = new FadingText(app.ticker, {
@@ -159,8 +157,21 @@ setInterval(()=>{
         }
     });
     
-    const i = Math.floor(Math.random()*s.tilemap.width*s.tilemap.height);
-    s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);
+    /*const i = Math.floor(Math.random()*s.tilemap.width*s.tilemap.height);
+    s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);*/
+    const x = Math.floor(Math.random()*s.tilemap.width);
+    const y = Math.floor(Math.random()*s.tilemap.height);
+    const frame = Math.floor(Math.random()*4);
+
+    board.setTiles(0, {
+        [y]:{
+            [x]:{
+                atlas:0,
+                frame:frame,
+                zIndex:0
+            }
+        }
+    })
 
     serverCalc.tick();
 }, 33);
