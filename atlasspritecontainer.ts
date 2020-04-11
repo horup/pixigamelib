@@ -29,6 +29,7 @@ export class AtlasSpriteContainer extends PIXI.Container
         this.sortableChildren = true;
     }
 
+    /**Sets the tiles */
     setTiles(layer:number, tilemap:Tilemap<AtlasTileProps>)
     {
         if (this.tiles[layer] == null)
@@ -56,6 +57,27 @@ export class AtlasSpriteContainer extends PIXI.Container
                 {
                     const sprite = this.tiles[layer][y][x];
                     sprite.spread(tile);
+                }
+            }
+        }
+    }
+
+    /**Removes the tile if they exists, freeing up the resources in the process */
+    removeTiles(layer:number, tilemap:Tilemap<any>)
+    {
+        if (this.tiles[layer] == null)
+            return;
+        for (let y in tilemap)
+        {
+            if (this.tiles[layer][y] == null)
+                continue;
+            for (let x in tilemap[y])
+            {
+                if (this.tiles[layer][y][x] != null)
+                {
+                    this.removeChild(this.tiles[layer][y][x]);
+                    this.tiles[layer][y][x].destroy({texture:true});
+                    delete this.tiles[layer][y][x];
                 }
             }
         }

@@ -164,11 +164,8 @@ loader.on('complete', ()=>
     setInterval(()=>{
         const len = Object.keys(s.things).length;
         const l = 100;
-   //     if (len < l)
-        {
-            for (let i = len - l; i < l; i++)
-                spawnMan();
-        }
+        for (let i = len - l; i < l; i++)
+            spawnMan();
 
         Object.entries(s.things).forEach((v)=>{
             const m = v[1] as Man;
@@ -195,7 +192,7 @@ loader.on('complete', ()=>
         const y = Math.floor(Math.random()*s.tilemap.height);
         const frame = Math.floor(Math.random()*4);
 
-    /*    board.setTiles(0, {
+        board.setTiles(0, {
             [y]:{
                 [x]:{
                     atlas:0,
@@ -203,7 +200,7 @@ loader.on('complete', ()=>
                     zIndex:0
                 }
             }
-        })*/
+        })
 
         serverCalc.tick();
     }, 33);
