@@ -35,8 +35,8 @@ loader.on('complete', ()=>
     status.text = "";
     const res = loader.resources;
     const atlas = {
-        0:{width:2, height:2, texture:res["tiles"].texture.baseTexture},
-        1:{width:2, height:2, texture:res["men"].texture.baseTexture}
+        0:{columns:2, rows:2, texture:res["tiles"].texture.baseTexture},
+        1:{columns:2, rows:2, texture:res["men"].texture.baseTexture}
     }
    
     const men:{[index:number]:AtlasSpriteProps} = {}

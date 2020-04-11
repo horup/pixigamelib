@@ -10,7 +10,7 @@ export interface AtlasSpriteProps
     /** y position of the sprite */
     y:number;
 
-    /** The index which contains the texture to use from the atlasmap */
+    /** The part of the texture to be shown */
     frame:number;
 
     /** The index of the atlas map of the sprite */
@@ -38,6 +38,7 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
         this.height = 1;
     }
 
+    /**Partially updates the sprite based upon a new set of props */
     spread(props:Partial<AtlasSpriteProps>)
     {
         this.x = props.x != undefined ? props.x : this.x;
@@ -57,10 +58,10 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
         if (this.frame != props.frame || forceFrame)
         {
             this.frame = props.frame;
-            const w = atlas.texture.width / atlas.width;
-            const h = atlas.texture.height / atlas.height;
-            const x = this.frame % atlas.width * w;
-            const y = Math.floor(this.frame / atlas.width) * h;
+            const w = atlas.texture.width / atlas.columns;
+            const h = atlas.texture.height / atlas.rows;
+            const x = this.frame % atlas.columns * w;
+            const y = Math.floor(this.frame / atlas.columns) * h;
             this.texture.frame = new PIXI.Rectangle(x, y, w, h);
             this.width = 1;
             this.height = 1;
