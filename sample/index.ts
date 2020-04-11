@@ -1,18 +1,17 @@
 import * as PIXI from 'pixi.js';
-import { AtlasSpriteContainer, Tilemap, AtlasTileProps } from '../atlasspritecontainer';
+import { AtlasSpriteContainer } from '../atlasspritecontainer';
 import { FadingText } from '../fadingtext';
 import { pan, zoom } from '../helpers';
 import { TickrateCalculator} from '../tickratecalculator';
 import { interpolateLinear } from '../interpolations';
 import { AtlasSpriteProps } from '..';
 import { CenteredText } from '../centeredtext';
+import { AtlasTileContainer, AtlasTileProps, Tilemap } from '../atlastilecontainer';
 declare var require;
-
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
-const loader = PIXI.Loader.shared;
-loader
+const loader = PIXI.Loader.shared
 .add("tiles", require("./tiles.png"))
 .add("men", require("./men.png"))
 .load();
@@ -23,15 +22,13 @@ const app = new PIXI.Application({
     view:canvas as any,
     resizeTo:window
 })
-/*
-const status = new PIXI.Text("Status", {fill:'white'} as Partial<PIXI.TextStyle>);
-status.x = app.view.width / 2;
-status.y = app.view.height / 2;
-app.stage.addChild(status);*/
 
+const board = new PIXI.Container();
 const status = new CenteredText(app.view, "Loading...", {fill:'white'});
-status.zIndex = 100000;
+app.stage.addChild(board);
 app.stage.addChild(status);
+const debug = new PIXI.Text("debug", {fill:'white', fontSize:16});
+app.stage.addChild(debug);
 
 loader.on('complete', ()=>
 {
@@ -41,32 +38,19 @@ loader.on('complete', ()=>
         0:{width:2, height:2, texture:res["tiles"].texture.baseTexture},
         1:{width:2, height:2, texture:res["men"].texture.baseTexture}
     }
-    console.log(loader.resources);
-
-
-    const tilemap = {
-        width:64,
-        height:64
-        
-    }
-
-
-    // construct sample state to be rendered
-    let s = {
-        things:{},
-        tilemap:tilemap
-    }
-
-    // make board and put on stage
-    // scale by 16
-    const board = new AtlasSpriteContainer(atlas)
-
+   
+    const men:{[index:number]:AtlasSpriteProps} = {}
+    const ground = new AtlasTileContainer(atlas);
+    board.addChild(ground);
+    const sprites = new AtlasSpriteContainer(atlas);
+    board.addChild(sprites);
 
     const map:Tilemap<AtlasTileProps> = {};
-    for (let y = 0; y < tilemap.height; y++)
+    const w = 32, h = 32;
+    for (let y = 0; y < h; y++)
     {
         map[y] = {};
-        for (let x = 0; x < tilemap.width; x++)
+        for (let x = 0; x < w; x++)
         {
             map[y][x] = {
                 atlas:0,
@@ -76,17 +60,8 @@ loader.on('complete', ()=>
         }
     }
 
-    board.setTiles(0, map);
-
-
-    board.x = 0;
-    board.y = 0;
+    ground.setTiles(0, map);
     board.scale.set(16);
-
-    app.stage.addChild(board);
-
-    const debug = new PIXI.Text("debug", {fill:'white', fontSize:16});
-    app.stage.addChild(debug);
 
     class Man implements AtlasSpriteProps
     {
@@ -121,16 +96,6 @@ loader.on('complete', ()=>
 
     let nextId = 0;
 
-    function spawnMan()
-    {
-        const man = new Man(Math.random() * s.tilemap.width,
-            Math.random() * s.tilemap.height);
-        
-        s.things[nextId++] = man;
-        const t = new FadingText({text:"Hi!", x:man.x, y:man.y});
-        board.addChild(t);
-    }
-
     window.onkeydown = (e)=>
     {
         
@@ -142,8 +107,6 @@ loader.on('complete', ()=>
         const dir = -Math.sign(e.deltaY) ;
         const speed = 1.2;
         let g = new PIXI.Point(e.clientX, e.clientY);
-        /*if (dir < 0)
-            g.set(app.view.width / 2, app.view.height /2);*/
         zoom(board, speed * dir, g);
     }
 
@@ -153,7 +116,6 @@ loader.on('complete', ()=>
         {
             pan(board, -e.movementX, -e.movementY);
         }
-        //pan(board, 1, 1);
     }
 
     let iterations = 0;
@@ -162,37 +124,42 @@ loader.on('complete', ()=>
     const clientCalc = new TickrateCalculator();
 
     setInterval(()=>{
-        const len = Object.keys(s.things).length;
+        const len = Object.keys(men).length;
         const l = 100;
-        for (let i = len - l; i < l; i++)
-            spawnMan();
+        for (let i = len - l; i < l; i++){
+            const man = new Man(Math.random() * w,
+            Math.random() * h);
+        
+            men[nextId++] = man;
+            const t = new FadingText({text:"Hi!", x:man.x, y:man.y});
+            board.addChild(t);
+        }
 
-        Object.entries(s.things).forEach((v)=>{
+        Object.entries(men).forEach((v)=>{
             const m = v[1] as Man;
             const id = v[0] as string;
             m.update();
-            board.setSprites({[id]:m});
+            sprites.setSprites({[id]:m});
             if (m.life <= 0)
             {
                 
-                delete s.things[id];
-                board.removeSprites({[id]:{}});
+                delete men[id];
+                sprites.removeSprites({[id]:{}});
                 const t = new FadingText({
                     text:"Bye!",
                     x:m.x,
                     y:m.y
                 })
-                board.addChild(t);
+                sprites.addChild(t);
             }
         });
         
-        /*const i = Math.floor(Math.random()*s.tilemap.width*s.tilemap.height);
-        s.tilemap.layers[0][i].frame = Math.floor(Math.random()*4);*/
-        const x = Math.floor(Math.random()*s.tilemap.width);
-        const y = Math.floor(Math.random()*s.tilemap.height);
+       
+        const x = Math.floor(Math.random()*w);
+        const y = Math.floor(Math.random()*h);
         const frame = Math.floor(Math.random()*4);
 
-        board.setTiles(0, {
+        ground.setTiles(0, {
             [y]:{
                 [x]:{
                     atlas:0,
@@ -211,7 +178,7 @@ loader.on('complete', ()=>
         if (serverCalc.stable && clientCalc.stable)
         {
             const f = clientCalc.factor(serverCalc);
-            Object.values(s.things).forEach((t:Man)=>{
+            Object.values(men).forEach((t:Man)=>{
                 t.x = interpolateLinear(t.prevPos.x, t.pos.x, f);
                 t.y = interpolateLinear(t.prevPos.y, t.pos.y, f);
             });
@@ -220,7 +187,7 @@ loader.on('complete', ()=>
 
     app.ticker.add(()=>
     {
-        board.setSprites(s.things);
+        sprites.setSprites(men);
         clientCalc.tick();
         interpolate();
         debug.text = `FPS:${app.ticker.FPS}`;

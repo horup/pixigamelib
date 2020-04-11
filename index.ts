@@ -5,4 +5,5 @@ export * from './tickratecalculator';
 export * from './atlas';
 export * from './atlassprite';
 export * from './atlasspritecontainer';
+export * from './atlastilecontainer';
 export * from './centeredtext';
