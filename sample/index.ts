@@ -90,7 +90,7 @@ loader.on('complete', ()=>
 
     class Man implements AtlasSpriteProps
     {
-        life:number = Math.random()*100;
+        life:number = 60+Math.random()*60;
         x: number = 0;
         y: number = 0;
         prevPos:{x:number, y:number} = {x:0, y:0};
@@ -127,8 +127,8 @@ loader.on('complete', ()=>
             Math.random() * s.tilemap.height);
         
         s.things[nextId++] = man;
-      /*  const t = new FadingText({text:"Hi!", x:man.x, y:man.y});
-        board.addChild(t);*/
+        const t = new FadingText({text:"Hi!", x:man.x, y:man.y});
+        board.addChild(t);
     }
 
     window.onkeydown = (e)=>
@@ -179,7 +179,7 @@ loader.on('complete', ()=>
             {
                 
                 delete s.things[id];
-                board.deleteSprites({[id]:{}});
+                board.removeSprites({[id]:{}});
                 const t = new FadingText({
                     text:"Bye!",
                     x:m.x,

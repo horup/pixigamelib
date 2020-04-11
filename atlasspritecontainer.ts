@@ -99,15 +99,15 @@ export class AtlasSpriteContainer extends PIXI.Container
         }
     }
 
-    /**Deletes the sprites with the given id, and removes them from the container */
-    deleteSprites(sprites:{[id:string]:any})
+    /**Removes the sprites with the given id, and removes them from the container */
+    removeSprites(sprites:{[id:string]:any})
     {
         for (let id in sprites)
         {
             if (this.sprites[id])
             {
                 const r = this.removeChild(this.sprites[id]);
-                r.destroy();
+                r.destroy({texture:true});
                 delete this.sprites[id];
             }
         }
