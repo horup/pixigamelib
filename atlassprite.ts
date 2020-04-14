@@ -1,15 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { AtlasMap } from ".";
 
-/** Props for AtlasSprite */
-export interface AtlasSpriteProps
+export interface AtlasTileProps
 {
-    /** x position of the sprite */
-    x:number;
-
-    /** y position of the sprite */
-    y:number;
-
     /** The part of the texture to be shown */
     frame:number;
 
@@ -18,9 +11,25 @@ export interface AtlasSpriteProps
 
     /** Render order as to control overlapping */
     zIndex?:number;
-
+    
     /** Anchor, where to place the sprite */
-    anchor?:{x:number, y?:number};
+    anchor?:{x:number, y:number};
+
+    /**Tint */
+    tint?:number;
+
+    /**Alpha */
+    alpha?:number;
+}
+
+/** Props for AtlasSprite */
+export interface AtlasSpriteProps extends AtlasTileProps
+{
+    /** x position of the sprite */
+    x:number;
+
+    /** y position of the sprite */
+    y:number;
 }
 
 
@@ -49,6 +58,8 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
         this.atlas = props.atlas != undefined ? props.atlas : this.atlas;
         const atlas = this.atlasMap[this.atlas];
         this.zIndex = props.zIndex != undefined ? props.zIndex : this.zIndex;
+        this.tint = props.tint != undefined ? props.tint : this.tint;
+        this.alpha = props.alpha != undefined ? props.alpha : this.alpha;
 
         if (props.anchor != null && props.anchor.x != null)
         {

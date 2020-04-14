@@ -1,13 +1,7 @@
 import * as PIXI from 'pixi.js';
-import { AtlasSprite } from './atlassprite';
+import { AtlasSprite, AtlasTileProps } from './atlassprite';
 import {  AtlasMap } from './atlas';
-export interface AtlasTileProps
-{
-    frame:number;
-    atlas:number;
-    zIndex?:number;
-    anchor?:{x:number, y:number};
-}
+
 
 export type Tilemap<T> = {[y:number]:{[x:number]:T}};
 export type LayeredTilemap<T> = {[layer:number]:Tilemap<T>};

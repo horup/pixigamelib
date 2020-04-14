@@ -4,9 +4,9 @@ import { FadingText } from '../fadingtext';
 import { pan, zoom } from '../helpers';
 import { TickrateCalculator} from '../tickratecalculator';
 import { interpolateLinear } from '../interpolations';
-import { AtlasSpriteProps } from '..';
+import { AtlasSpriteProps, AtlasTileProps } from '..';
 import { CenteredText } from '../centeredtext';
-import { AtlasTileContainer, AtlasTileProps, Tilemap } from '../atlastilecontainer';
+import { AtlasTileContainer, Tilemap } from '../atlastilecontainer';
 declare var require;
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
