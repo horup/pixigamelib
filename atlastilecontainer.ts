@@ -1,12 +1,12 @@
 import * as PIXI from 'pixi.js';
 import { AtlasSprite } from './atlassprite';
 import {  AtlasMap } from './atlas';
-console.log(AtlasSprite);
 export interface AtlasTileProps
 {
     frame:number;
     atlas:number;
-    zIndex:number;
+    zIndex?:number;
+    anchor?:{x:number, y:number};
 }
 
 export type Tilemap<T> = {[y:number]:{[x:number]:T}};
@@ -42,12 +42,13 @@ export class AtlasTileContainer extends PIXI.Container
                     const sprite = new AtlasSprite({
                         atlas:tile.atlas,
                         frame:tile.frame,
-                        zIndex:tile.zIndex,
                         x:parseInt(x),
                         y:parseInt(y)
                     }, this.atlasMap);
+                    
                     this.tiles[layer][y][x] = sprite;
                     this.addChild(sprite);
+                    sprite.spread(tile);
                 }
                 else
                 {

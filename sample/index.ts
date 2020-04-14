@@ -74,6 +74,7 @@ loader.on('complete', ()=>
         frame: number = Math.floor(Math.random() * 4);
         atlas: number = 1;
         zIndex: number = 0;
+        anchor = {x:0.5, y:1.0};
 
         constructor(x:number, y:number)
         {
@@ -85,6 +86,7 @@ loader.on('complete', ()=>
         
         update()
         {
+            return;
             this.life -= 1;
             const speed = 1;
             this.prevPos = this.pos;
@@ -125,7 +127,7 @@ loader.on('complete', ()=>
 
     setInterval(()=>{
         const len = Object.keys(men).length;
-        const l = 100;
+        const l = 1;
         for (let i = len - l; i < l; i++){
             const man = new Man(Math.random() * w,
             Math.random() * h);
@@ -164,7 +166,8 @@ loader.on('complete', ()=>
                 [x]:{
                     atlas:0,
                     frame:frame,
-                    zIndex:0
+                    zIndex:0,
+                    anchor:{x:0, y:0.0}
                 }
             }
         })

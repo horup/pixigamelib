@@ -17,7 +17,10 @@ export interface AtlasSpriteProps
     atlas:number;
 
     /** Render order as to control overlapping */
-    zIndex:number;
+    zIndex?:number;
+
+    /** Anchor, where to place the sprite */
+    anchor?:{x:number, y?:number};
 }
 
 
@@ -47,6 +50,18 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
         const atlas = this.atlasMap[this.atlas];
         this.zIndex = props.zIndex != undefined ? props.zIndex : this.zIndex;
 
+        if (props.anchor != null && props.anchor.x != null)
+        {
+
+            if (props.anchor.y != undefined)
+            {
+                this.anchor.set(props.anchor.x, props.anchor.y);
+
+            }
+            else
+                this.anchor.set(props.anchor.x);
+        }
+
         let forceFrame = false;
         if (this.texture.baseTexture != atlas.texture)
         {
@@ -65,7 +80,6 @@ export class AtlasSprite extends PIXI.Sprite implements AtlasSpriteProps
             this.texture.frame = new PIXI.Rectangle(x, y, w, h);
             this.width = 1;
             this.height = 1;
-            this.anchor.set(0.0, 0.0);
         }
     }
 }
